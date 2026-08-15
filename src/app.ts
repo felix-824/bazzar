@@ -1,5 +1,6 @@
 import express from "express";
 
+/** 1-ENTRANCE **/
 const app = express();
 
 app.get("/", (req, res) => {

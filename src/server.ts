@@ -1,11 +1,20 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import mongoose from "mongoose";
 import app from "./app";
 
-const PORT = process.env.PORT ?? 3001;
+mongoose
+  .connect(process.env.MONGO_URL as string)
+  .then(() => {
+    console.log("MongoDb connection succeed");
+    const PORT = process.env.PORT ?? 3001;
 
-app.listen(PORT, () => {
+    app.listen(PORT, () => {
     console.log(`Bazzar server is running on port ${PORT}`);
+  });
+})
+.catch((err) => {
+    console.log("ERROR on connection MongoDB", err);
 });
 
