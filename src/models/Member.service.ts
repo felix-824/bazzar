@@ -22,9 +22,20 @@ class MemberService {
       delete member.memberPassword;
 
       return member;
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error, model:signup', err);
-      throw new Errors(HttpCode.BAD_REQUEST, Message.USED_NICK_PHONE);
+     
+      if(err.code === 11000) {
+        throw new Errors(
+          HttpCode.BAD_REQUEST,
+          Message.USED_NICK_PHONE
+        );
+      }
+
+        throw new Errors(
+          HttpCode.INTERNAL_SERVER_ERROR,
+          Message.SOMETHING_WENT_WRONG
+        );
     }
   }
 
