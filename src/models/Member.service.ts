@@ -57,7 +57,7 @@ class MemberService {
          HttpCode.NOT_FOUND,
          Message.NO_MEMBER_NICK,
       );
-     } else if ( member.memberStatus === MemberStatus.BLOCK) {
+     }  if ( member.memberStatus === MemberStatus.BLOCK) {
        throw new Errors(
          HttpCode.FORBIDDEN,
          Message.BLOCKED_USER,
@@ -70,21 +70,12 @@ class MemberService {
      );
 
      if(!isMatch){
-      throw new Errors(
-        HttpCode.UNAUTHORIZED,
-        Message.WRONG_PASSWORD);
+      throw new Errors( HttpCode.UNAUTHORIZED, Message.WRONG_PASSWORD);
      }
      const result = await this.memberModel
-       .findById(member._id, {
-         memberPassword:0
-       })
-       .lean()
-       .exec();
+       .findById(member._id, { memberPassword:0}).lean().exec();
 
-       if(!result) {
-        throw new Errors(
-          HttpCode.NOT_FOUND,
-          Message.NO_MEMBER_NICK
+       if(!result) {throw new Errors(HttpCode.NOT_FOUND, Message.NO_MEMBER_NICK
         );
        }
 

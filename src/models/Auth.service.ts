@@ -1,0 +1,38 @@
+import { AUTH_TIMER } from "../libs/config";
+import Errors, { HttpCode, Message } from "../libs/Errors";
+import { Member } from "../libs/types/member";
+import jwt from "jsonwebtoken"
+
+class AuthService {
+    private readonly secretToken;
+
+    constructor() {
+        this.secretToken = process.env.SECRET_TOKEN as string;
+    }
+
+    public async createToken(payload: Member) {
+        return new Promise((resolve, reject) => {
+            const duration = `${AUTH_TIMER}h`;  //24soat
+
+            jwt.sign(   //sign= tokenYaratuvchiFunksiya,
+                payload,          // member ma'lumotlari
+                this.secretToken, // tokenni imzolaydigan maxfiy kalit
+                {
+                    expiresIn: duration, // 24 soat
+                },
+                (err, token) => {   //callback=token yaratildimi yoki error bo'ldimi?
+                    if(err)
+                        reject(
+                    new Errors(
+                        HttpCode.UNAUTHORIZED,
+                        Message.TOKEN_CREATION_FAILED
+                    )
+                );
+                else resolve(token as string);
+                }
+            );
+        });
+    }
+}
+
+export default AuthService;
