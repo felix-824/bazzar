@@ -3,6 +3,7 @@ import router from "./router";
 import session from "express-session";
 import connectMongoDBSession from "connect-mongodb-session";
 import { T } from "./libs/types/common";
+import cookieParser from "cookie-parser";
 
 const MongoDBStore = connectMongoDBSession(session);
 const store = new MongoDBStore({
@@ -15,6 +16,7 @@ const app = express();
 
 app.use(express.json()); // REST api ga xizmat Midlweri
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 /** 2-SESSION */
 app.use(

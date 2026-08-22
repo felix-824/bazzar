@@ -33,6 +33,17 @@ class AuthService {
             );
         });
     }
+
+    public async checkAuth(token: string): Promise<Member> {
+       const result = (await jwt.verify(
+        token,
+         this.secretToken
+       )) as Member;
+
+       return result;
+    }
 }
+
+
 
 export default AuthService;
