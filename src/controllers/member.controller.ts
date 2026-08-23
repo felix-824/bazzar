@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { json, NextFunction, Request, Response } from 'express';
 import { T } from '../libs/types/common';
 import { ExtendedRequest, LoginInput, Member, MemberInput } from '../libs/types/member';
 import MemberService from '../models/Member.service';
@@ -41,10 +41,15 @@ memberController.signup = async (req: Request, res: Response) => {
 
 memberController.login = async (req: Request, res: Response) => {
   try {
-    console.log('login:', req.body);
+    console.log('Login:', req.body);
     const input: LoginInput = req.body;
     const result: Member = await memberService.login(input);
+
+    console.log('memberService.loginDAN', result);
+
     const token = await authService.createToken(result);
+
+    console.log('createTokenDAN', token);
 
     res.cookie('accessToken', token, {
       maxAge: AUTH_TIMER * 3600 * 1000,
@@ -83,32 +88,43 @@ memberController.logout = async (req: Request, res: Response) => {
   }
 };
 
-memberController.verifyAuth = async (
-  req: ExtendedRequest ,
-  res: Response,
-  next: NextFunction) => {
-    try {
-      const token = req.cookies["accessToken"];
-      if (!token) {
-        throw new Errors(
-          HttpCode.UNAUTHORIZED,
-          Message.NOT_AUTHENTICATED
-        );
-      }
-     const result = await authService.checkAuth(token);
+  //getMemberDetail → "Shu userning HOZIRGI ma'lumotini olib ber."
+memberController.getMemberDetail = async (req: ExtendedRequest, res: Response) => {
+  try {
+    const member: Member = req.member;
+    const result = await memberService.getMemberDetail(member);
+    console.log("getMemberDetail result:", result);
 
-     req.member = result;
-     next();
-    } catch (err) {
-      console.log("Error, verifyAuth:", err);
-
-      if(err instanceof Errors) {
-        res.status(err.code).json(err);
+    res.status(HttpCode.OK).json(result);
+  } catch (err) {
+    if (err instanceof Errors) {
+      res.status(err.code).json(err);
     } else {
-     res.status(Errors.standard.code) 
-     .json(Errors.standard)
+      res.status(Errors.standard.code).json(Errors.standard);
     }
+  }
+};
+
+  //verifyAuth   → "Bu requestni KIM yubordi?"
+memberController.verifyAuth = async (req: ExtendedRequest, res: Response, next: NextFunction) => {
+  try {
+    const token = req.cookies['accessToken'];
+    if (!token) {
+      throw new Errors(HttpCode.UNAUTHORIZED, Message.NOT_AUTHENTICATED);
     }
+    const result = await authService.checkAuth(token);
+    
+    req.member = result;  //Autentifikatsiyadan o‘tgan memberni request obyektiga biriktir.
+    next();
+  } catch (err) {
+    console.log('Error, verifyAuth:', err);
+
+    if (err instanceof Errors) {
+      res.status(err.code).json(err);
+    } else {
+      res.status(Errors.standard.code).json(Errors.standard);
+    }
+  }
 };
 
 export default memberController;

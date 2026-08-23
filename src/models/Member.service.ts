@@ -3,6 +3,7 @@ import { Member, MemberInput, LoginInput } from '../libs/types/member';
 import { MemberStatus } from "../libs/enums/member.enum";
 import Errors, { HttpCode, Message } from '../libs/Errors';
 import bcrypt from 'bcryptjs';
+import { shapeIntoMongooseObjectId } from '../libs/config';
 
 class MemberService {
   private readonly memberModel;
@@ -20,7 +21,6 @@ class MemberService {
       const member = result.toObject() as Member;
 
       delete member.memberPassword;
-
       return member;
     } catch (err: any) {
       console.error('Error, model:signup', err);
@@ -42,9 +42,12 @@ class MemberService {
   public async login(input: LoginInput): Promise<Member> {
 
      const member = await this.memberModel.findOne({
-       memberNick: input.memberNick,
+      //filter=Kimni qidirish kerakligini bildiradi;
+       memberNick: input.memberNick,                 
        memberStatus: {$ne: MemberStatus.DELETE}
      },
+     //projection= Topilgan memberdan qaysi
+     //  fieldlarni olish kerakligini bildiradi.
      {
       memberNick: 1,
       memberPassword: 1,
@@ -81,7 +84,28 @@ class MemberService {
 
        return result;
   }
-   
+
+  public async getMemberDetail(member: Member): Promise<Member> {
+     const memberId = shapeIntoMongooseObjectId(member._id);
+     const result = await this.memberModel.findOne(
+      {
+      _id: memberId,
+      memberStatus: MemberStatus.ACTIVE
+     },
+     {
+       memberPassword: 0
+     }
+    ) 
+     .exec();
+     if(!result) {
+      throw new Errors(
+        HttpCode.NOT_FOUND,
+        Message.NO_DATA_FOUND
+      );
+     }
+     return result
+
+   }
 
 }
 
