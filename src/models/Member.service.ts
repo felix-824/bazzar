@@ -1,9 +1,10 @@
 import MemberModel from '../schema/Member.model';
-import { Member, MemberInput, LoginInput } from '../libs/types/member';
+import { Member, MemberInput, LoginInput, MemberUpdateInput } from '../libs/types/member';
 import { MemberStatus } from "../libs/enums/member.enum";
 import Errors, { HttpCode, Message } from '../libs/Errors';
 import bcrypt from 'bcryptjs';
 import { shapeIntoMongooseObjectId } from '../libs/config';
+import { exec } from 'child_process';
 
 class MemberService {
   private readonly memberModel;
@@ -106,7 +107,23 @@ class MemberService {
      return result
 
    }
-
+  public async updateMember(member: Member, input: MemberUpdateInput): Promise<Member> {
+    const memberId = shapeIntoMongooseObjectId(member._id);
+    const result = await this.memberModel.findOneAndUpdate(
+      {_id: memberId},
+      input,
+    { returnDocument: "after"},
+    )
+    .select("-memberPassword")
+    .exec();
+     if(!result) {
+    throw new Errors(
+      HttpCode.NOT_FOUND,
+      Message.UPDATE_FAILED
+    );
+  }
+  return result;
+  }
 }
 
 export default MemberService;
