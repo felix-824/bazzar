@@ -6,6 +6,7 @@ import Errors, { HttpCode, Message } from '../libs/Errors';
 import AuthService from '../models/Auth.service';
 import { AUTH_TIMER } from '../libs/config';
 import { update } from 'list';
+import { MemberStatus, MemberType } from '../libs/enums/member.enum';
 
 const memberService = new MemberService();
 const authService = new AuthService();
@@ -151,6 +152,25 @@ memberController.verifyAuth = async (req: ExtendedRequest, res: Response, next: 
       res.status(Errors.standard.code).json(Errors.standard);
     }
   }
-};
+}
+
+ memberController.verifyAdmin =(req: ExtendedRequest, res: Response, next: NextFunction) =>{
+    try{
+      const member: Member = req.member;
+      
+      if(member.memberType !== MemberType.ADMIN) {
+        throw new Errors(HttpCode.FORBIDDEN, Message.NOT_AUTHENTICATED);
+      }
+
+       next();
+    }catch(err) {
+      if (err instanceof Errors) {
+        res.status(err.code).json(err);
+      } else {
+        res.status(Errors.standard.code).json(Errors.standard);
+      }
+    }
+  }
+
 
 export default memberController;

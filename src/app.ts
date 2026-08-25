@@ -4,6 +4,8 @@ import session from "express-session";
 import connectMongoDBSession from "connect-mongodb-session";
 import { T } from "./libs/types/common";
 import cookieParser from "cookie-parser";
+import routerAdmin from "./router-admin";
+import path from "path";
 
 const MongoDBStore = connectMongoDBSession(session);
 const store = new MongoDBStore({
@@ -38,7 +40,11 @@ app.use(function(req, res, next) {
 });
 
 
+app.use("/uploads", express.static("./uploads"));
+
+
 /** ROUTERS **/
+app.use("/admin", routerAdmin);
 app.use("/", router);
 
 export default app;
