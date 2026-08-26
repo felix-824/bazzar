@@ -20,13 +20,24 @@ class ProductService {
     }
    }
 
-   public async getProducts(): Promise<Product[]> {
+   public async getAllProducts(): Promise<Product[]> {
      const result = await this.productModel.find({
      productStatus: ProductStatus.PROCESS,
      });
-
+     if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
      return result;
    }
+
+   public async getProduct(productId: string): Promise<Product> {
+    const result = await this.productModel.findById(productId);
+
+    if(!result) {
+        throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+    }
+
+    return result;
+   }
+   
 
 }
 

@@ -25,12 +25,14 @@ router.post(
     memberController.updateMember
 );
 
-console.log(
-  "productController.getProducts:",
-  productController.getProducts
-);
+
 router.get(
     "/product/all",
-    productController.getProducts
+    productController.getAllProducts
+);
+
+router.get(
+    "/product/:id",
+    productController.getProduct
 );
 export default router;
