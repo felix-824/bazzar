@@ -1,3 +1,4 @@
+import { ProductStatus } from "../libs/enums/product.enum";
 import Errors, { HttpCode, Message } from "../libs/Errors";
 import { Product, ProductInput } from "../libs/types/product";
 import ProductModel from "../schema/Product.model";
@@ -17,7 +18,14 @@ class ProductService {
         console.log("Error, createProduct:", err);
         throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED );
     }
-    
+   }
+
+   public async getProducts(): Promise<Product[]> {
+     const result = await this.productModel.find({
+     productStatus: ProductStatus.PROCESS,
+     });
+
+     return result;
    }
 
 }

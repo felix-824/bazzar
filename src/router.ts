@@ -1,6 +1,7 @@
 import express from "express";
 import memberController from "./controllers/member.controller";
 import uploader from "./libs/utils/uploader";
+import productController from "./controllers/product.controller";
 const router = express.Router();
 
 router.post("/member/signup", memberController.signup);
@@ -24,4 +25,12 @@ router.post(
     memberController.updateMember
 );
 
+console.log(
+  "productController.getProducts:",
+  productController.getProducts
+);
+router.get(
+    "/product/all",
+    productController.getProducts
+);
 export default router;
