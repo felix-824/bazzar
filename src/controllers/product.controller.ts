@@ -1,5 +1,5 @@
 import Errors, { HttpCode } from '../libs/Errors';
-import { ProductInput } from '../libs/types/product';
+import { ProductInput, ProductUpdateInput } from '../libs/types/product';
 import ProductService from '../models/Product.service';
 import { Request, Response } from 'express';
 
@@ -55,12 +55,39 @@ productController.getProduct = async (req: Request, res: Response) => {
 
     res.status(HttpCode.OK).json(result);
   } catch (err) {
+    if (err instanceof Errors) {
+      res.status(err.code).json(err);
+    } else {
+      res.status(Errors.standard.code).json(Errors.standard);
+    }
+  }
+};
+
+productController.updateProduct = async (req: Request, res: Response) => {
+  try {
+    const productId = req.params.id as string;
+    const input: ProductUpdateInput = req.body;
+
+     if (req.files) {
+      const files = req.files as Express.Multer.File[];
+
+      input.productImages = files.map((file) =>
+        file.path.replace(/\\/g, "/")
+      );
+    }
+
+    console.log('IdResult', productId);
+    console.log('ProductResult', input);
+
+    const result = await productService.updateProduct(productId, input);
+    res.status(HttpCode.OK).json(result);
+  } catch (err) {
     if(err instanceof Errors) {
-        res.status(err.code).json(err)
-    }else {
+        res.status(err.code).json(err);
+    }else{
         res.status(Errors.standard.code).json(Errors.standard)
     }
-  } 
+  }
 };
 
 export default productController;

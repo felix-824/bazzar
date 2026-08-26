@@ -1,6 +1,6 @@
 import { ProductStatus } from "../libs/enums/product.enum";
 import Errors, { HttpCode, Message } from "../libs/Errors";
-import { Product, ProductInput } from "../libs/types/product";
+import { Product, ProductInput, ProductUpdateInput } from "../libs/types/product";
 import ProductModel from "../schema/Product.model";
 
 class ProductService {
@@ -23,8 +23,9 @@ class ProductService {
    public async getAllProducts(): Promise<Product[]> {
      const result = await this.productModel.find({
      productStatus: ProductStatus.PROCESS,
-     });
-     if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+     })
+     .exec();
+     if (!result.length) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
      return result;
    }
 
@@ -34,9 +35,22 @@ class ProductService {
     if(!result) {
         throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
     }
-
     return result;
    }
+
+   public async updateProduct(productId: string, input: ProductUpdateInput ): Promise<Product>{
+    const result = await this.productModel.findByIdAndUpdate(
+    productId,
+    input,
+    {new: true}
+    );
+
+    if(!result) {
+        throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+    }
+    return result;
+   }
+
    
 
 }

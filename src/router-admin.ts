@@ -13,4 +13,12 @@ routerAdmin.post(
     uploader("products").array("productImages"),
     productController.createProduct);
 
+routerAdmin.post(
+    "/product/update/:id",
+    memberController.verifyAuth,
+    memberController.verifyAdmin,
+    uploader("products").array("productImages"),
+    productController.updateProduct
+)    
+
 export default routerAdmin;
