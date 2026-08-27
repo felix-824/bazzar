@@ -1,58 +1,65 @@
-import { ProductStatus } from "../libs/enums/product.enum";
-import Errors, { HttpCode, Message } from "../libs/Errors";
-import { Product, ProductInput, ProductUpdateInput } from "../libs/types/product";
-import ProductModel from "../schema/Product.model";
+import { ProductCollection, ProductStatus } from '../libs/enums/product.enum';
+import Errors, { HttpCode, Message } from '../libs/Errors';
+import { Product, ProductInput, ProductInquiry, ProductUpdateInput } from '../libs/types/product';
+import ProductModel from '../schema/Product.model';
 
 class ProductService {
-    private readonly productModel;
+  private readonly productModel;
 
-    constructor() {
-        this.productModel = ProductModel;
-    }
+  constructor() {
+    this.productModel = ProductModel;
+  }
 
-   public async createProduct(input: ProductInput): Promise<Product>{
+  public async createProduct(input: ProductInput): Promise<Product> {
     try {
-    const result = await this.productModel.create(input);
-     return result;
+      const result = await this.productModel.create(input);
+      return result;
     } catch (err) {
-        console.log("Error, createProduct:", err);
-        throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED );
+      console.log('Error, createProduct:', err);
+      throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);
     }
-   }
+  }
 
-   public async getAllProducts(): Promise<Product[]> {
-     const result = await this.productModel.find({
-     productStatus: ProductStatus.PROCESS,
-     })
-     .exec();
-     if (!result.length) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
-     return result;
-   }
+  public async getAllProducts(input: ProductInquiry): Promise<Product[]> {
+    const match: any = {
+      productStatus: ProductStatus.PROCESS,
+    };
+    if (input.productCollection) {
+      match.productCollection = input.productCollection;
+    }
+    if (input.search) {
+      match.productName = {
+        $regex: input.search,
+        $options: 'i',
+      };
+    }
+    const { page = 1, limit = 10 } = input;
 
-   public async getProduct(productId: string): Promise<Product> {
+    const skip = (page - 1) * limit;
+
+    const result = await this.productModel.find(match).skip(skip).limit(limit).exec();
+
+    if (!result.length) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+    return result;
+  }
+
+  public async getProduct(productId: string): Promise<Product> {
     const result = await this.productModel.findById(productId);
 
-    if(!result) {
-        throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+    if (!result) {
+      throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
     }
     return result;
-   }
+  }
 
-   public async updateProduct(productId: string, input: ProductUpdateInput ): Promise<Product>{
-    const result = await this.productModel.findByIdAndUpdate(
-    productId,
-    input,
-    {new: true}
-    );
+  public async updateProduct(productId: string, input: ProductUpdateInput): Promise<Product> {
+    const result = await this.productModel.findByIdAndUpdate(productId, input, { new: true });
 
-    if(!result) {
-        throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+    if (!result) {
+      throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
     }
     return result;
-   }
-
-   
-
+  }
 }
 
-export default ProductService
+export default ProductService;

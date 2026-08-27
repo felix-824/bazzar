@@ -1,3 +1,4 @@
+import { ProductCollection } from '../libs/enums/product.enum';
 import Errors, { HttpCode } from '../libs/Errors';
 import { ProductInput, ProductUpdateInput } from '../libs/types/product';
 import ProductService from '../models/Product.service';
@@ -31,7 +32,17 @@ productController.createProduct = async (req: Request, res: Response) => {
 
 productController.getAllProducts = async (req: Request, res: Response) => {
   try {
-    const result = await productService.getAllProducts();
+    const productCollection = req.query.productCollection as ProductCollection;
+    const search = req.query.search as ProductCollection;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit ) || 10;
+
+    const result = await productService.getAllProducts({
+      productCollection,
+      search,
+      page,
+      limit,
+    });
 
     console.log('Natija', result);
 
@@ -68,12 +79,10 @@ productController.updateProduct = async (req: Request, res: Response) => {
     const productId = req.params.id as string;
     const input: ProductUpdateInput = req.body;
 
-     if (req.files) {
+    if (req.files) {
       const files = req.files as Express.Multer.File[];
 
-      input.productImages = files.map((file) =>
-        file.path.replace(/\\/g, "/")
-      );
+      input.productImages = files.map((file) => file.path.replace(/\\/g, '/'));
     }
 
     console.log('IdResult', productId);
@@ -82,10 +91,10 @@ productController.updateProduct = async (req: Request, res: Response) => {
     const result = await productService.updateProduct(productId, input);
     res.status(HttpCode.OK).json(result);
   } catch (err) {
-    if(err instanceof Errors) {
-        res.status(err.code).json(err);
-    }else{
-        res.status(Errors.standard.code).json(Errors.standard)
+    if (err instanceof Errors) {
+      res.status(err.code).json(err);
+    } else {
+      res.status(Errors.standard.code).json(Errors.standard);
     }
   }
 };
