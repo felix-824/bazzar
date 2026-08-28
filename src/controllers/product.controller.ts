@@ -30,18 +30,18 @@ productController.createProduct = async (req: Request, res: Response) => {
   }
 };
 
-productController.getAllProducts = async (req: Request, res: Response) => {
+productController.getProducts = async (req: Request, res: Response) => {
   try {
-    const productCollection = req.query.productCollection as ProductCollection;
-    const search = req.query.search as ProductCollection;
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit ) || 10;
+    console.log('getAllProducts');
+    const { productCollection, search, page, limit, sort } = req.query;
 
-    const result = await productService.getAllProducts({
-      productCollection,
-      search,
-      page,
-      limit,
+    const result = await productService.getProducts({
+
+      productCollection: productCollection as ProductCollection,
+      search: search as string,
+      page: Number(page) || 1,
+      limit: Number(limit) || 10,
+      sort : sort as string,
     });
 
     console.log('Natija', result);
