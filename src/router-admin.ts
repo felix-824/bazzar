@@ -20,5 +20,11 @@ routerAdmin.post(
     uploader("products").array("productImages"),
     productController.updateProduct
 )    
+routerAdmin.post(
+    "/product/delete/:id",
+    memberController.verifyAuth,
+    memberController.verifyAdmin,
+    productController.deleteProduct
+);
 
 export default routerAdmin;

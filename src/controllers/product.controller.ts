@@ -1,5 +1,5 @@
-import { ProductCollection } from '../libs/enums/product.enum';
-import Errors, { HttpCode } from '../libs/Errors';
+import { ProductCollection, ProductStatus } from '../libs/enums/product.enum';
+import Errors, { HttpCode, Message } from '../libs/Errors';
 import { ProductInput, ProductUpdateInput } from '../libs/types/product';
 import ProductService from '../models/Product.service';
 import { Request, Response } from 'express';
@@ -98,5 +98,28 @@ productController.updateProduct = async (req: Request, res: Response) => {
     }
   }
 };
+
+productController.deleteProduct = async   (req: Request, res: Response) => {
+  try{
+    console.log("deleteProduct");
+
+   const productId = req.params.id as string;
+
+    const result = await productService.updateProduct(productId, {
+      productStatus: ProductStatus.DELETE,
+    });
+    res.status(HttpCode.OK).json(result);
+  }catch (err){
+    console.log("Error, deleteProduct:", err);
+
+  if (err instanceof Errors) {
+  res.status(err.code).json({ message: err.message });
+} else {
+  res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
+    message: Message.SOMETHING_WENT_WRONG,
+   });
+  }
+ } 
+}; 
 
 export default productController;
