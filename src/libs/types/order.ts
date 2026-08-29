@@ -24,10 +24,9 @@ export interface OrderItem {
 
 //OrderItemInput yangi item yaratish uchun input
 export interface OrderItemInput {
-  itemQuantity: number; // nechta mahsulot?
-  itemPrice: number; // mahsulot narxi
-  productId: ObjectId; // qaysi product?
-  orderId?: ObjectId; // qaysi order?
+  itemQuantity: number;
+  productId: ObjectId;
+  orderId?: ObjectId;
 }
 
 //OrderInquiry orderlarni qidirish/filterlash uchun
@@ -43,6 +42,5 @@ export interface OrderUpdateInput {
 
 // Yangi order yaratish uchun input
 export interface OrderInput {
-  orderDelivery: number;
   orderItems: OrderItemInput[];
 }
