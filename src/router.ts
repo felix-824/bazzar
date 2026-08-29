@@ -50,9 +50,9 @@ router.get(
 );
 
 router.post(
-  "/order/update/:id",
-  memberController.verifyAuth,
-  orderController.updateOrder
+    "/order/cancel/:id",
+    memberController.verifyAuth,
+    orderController.cancelOrder
 );
 
 export default router;

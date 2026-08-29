@@ -65,34 +65,63 @@ orderController.getOrders = async (
   }
 };
 
-orderController.updateOrder = async (
+orderController.updateOrderByAdmin = async (
   req: ExtendedRequest,
   res: Response
 ) => {
   try {
-    console.log("updateOrder");
+    console.log("updateOrderByAdmin");
 
-    const memberId = req.member._id;
     const orderId = req.params.id as string;
     const input: OrderUpdateInput = req.body;
 
-    const result = await orderService.updateOrder(
-      memberId,
+     console.log("orderId:",orderId);
+      console.log("input:",input);
+
+    const result = await orderService.updateOrderByAdmin(
       orderId,
       input
     );
 
     res.status(HttpCode.OK).json(result);
   } catch (err) {
-    console.log("Error, updateOrder:", err);
+    console.log("Error, updateOrderByAdmin:", err);
 
     if (err instanceof Errors) {
-      res.status(err.code).json({ message: err.message });
+      res.status(err.code).json({
+        message: err.message,
+      });
     } else {
       res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
         message: Message.SOMETHING_WENT_WRONG,
       });
     }
+  }
+};
+
+orderController.cancelOrder = async(req: ExtendedRequest, res: Response) =>{
+  try{
+   console.log("cancelOrder");
+
+   const memberId = req.member._id
+   const orderId = req.params.id as string;
+
+   const result = await orderService.cancelOrder(memberId, orderId);
+
+   res.status(HttpCode.OK).json(result);
+  }catch (err){
+     console.log("Error, cancelOrder:", err);
+
+     if (err instanceof Errors) {
+      res.status(err.code).json({
+        message: err.message,
+      });
+     } else {
+      res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
+        message: Message.SOMETHING_WENT_WRONG,
+      });
+     }
+
   }
 };
 

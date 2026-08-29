@@ -4,6 +4,7 @@ import OrderItemModel from "../schema/OrderItem.model";
 import { Order, OrderInput, OrderInquiry,  OrderUpdateInput, } from "../libs/types/order";
 import { shapeIntoMongooseObjectId } from "../libs/config";
 import Errors, { HttpCode, Message } from "../libs/Errors";
+import { OrderStatus } from "../libs/enums/order.enum";
 
 
 class OrderService {
@@ -93,11 +94,53 @@ class OrderService {
   return result;
 }
 
-public async updateOrder(
-  memberId: string,
+public async updateOrderByAdmin(
   orderId: string,
   input: OrderUpdateInput
 ): Promise<Order> {
+  const orderObjectId = shapeIntoMongooseObjectId(orderId);
+
+  const order = await this.orderModel.findById(orderObjectId);
+
+  if (!order) {
+    throw new Errors(
+      HttpCode.NOT_FOUND,
+      Message.NO_DATA_FOUND
+    );
+  }
+
+  const allowedTransitions: Record<OrderStatus, OrderStatus[]> = {
+    [OrderStatus.PAUSE]: [OrderStatus.PROCESS],
+    [OrderStatus.PROCESS]: [OrderStatus.FINISH],
+    [OrderStatus.FINISH]: [],
+    [OrderStatus.DELETE]: [],
+  };
+
+  const nextStatus = input.orderStatus;
+
+  if (
+    !Object.values(OrderStatus).includes(nextStatus) ||
+    !allowedTransitions[
+      order.orderStatus as OrderStatus
+    ].includes(nextStatus)
+  ) {
+    throw new Errors(
+      HttpCode.BAD_REQUEST,
+      Message.UPDATE_FAILED
+    );
+  }
+
+  order.orderStatus = nextStatus;
+
+  await order.save();
+
+  return order;
+}
+
+public async cancelOrder(
+  memberId: string,
+  orderId: string
+):Promise<Order>{
   const memberObjectId = shapeIntoMongooseObjectId(memberId);
   const orderObjectId = shapeIntoMongooseObjectId(orderId);
 
@@ -105,18 +148,22 @@ public async updateOrder(
     {
       _id: orderObjectId,
       memberId: memberObjectId,
+      orderStatus: OrderStatus.PAUSE,
     },
-    input,
-    { new: true }
+    {
+      orderStatus: OrderStatus.DELETE,
+    },
+    {
+      new: true,
+    }
   );
+  if (!result) {throw new Errors(HttpCode.BAD_REQUEST, Message.UPDATE_FAILED
 
-  if (!result) {
-    throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
-  }
-
-  return result;
+  );
 }
 
+return result;
+}
 
 }
 
