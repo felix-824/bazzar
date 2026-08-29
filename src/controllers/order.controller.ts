@@ -1,7 +1,7 @@
 import { Response } from "express";
 import OrderService from "../models/Order.service";
 import { ExtendedRequest } from "../libs/types/member";
-import { OrderInput, OrderInquiry } from "../libs/types/order";
+import { OrderInput, OrderInquiry, OrderUpdateInput } from "../libs/types/order";
 import Errors, { HttpCode, Message } from "../libs/Errors";
 
 const orderController: any = {};
@@ -54,6 +54,37 @@ orderController.getOrders = async (
     res.status(HttpCode.OK).json(result);
   } catch (err) {
     console.log("Error, getOrders:", err);
+
+    if (err instanceof Errors) {
+      res.status(err.code).json({ message: err.message });
+    } else {
+      res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
+        message: Message.SOMETHING_WENT_WRONG,
+      });
+    }
+  }
+};
+
+orderController.updateOrder = async (
+  req: ExtendedRequest,
+  res: Response
+) => {
+  try {
+    console.log("updateOrder");
+
+    const memberId = req.member._id;
+    const orderId = req.params.id as string;
+    const input: OrderUpdateInput = req.body;
+
+    const result = await orderService.updateOrder(
+      memberId,
+      orderId,
+      input
+    );
+
+    res.status(HttpCode.OK).json(result);
+  } catch (err) {
+    console.log("Error, updateOrder:", err);
 
     if (err instanceof Errors) {
       res.status(err.code).json({ message: err.message });

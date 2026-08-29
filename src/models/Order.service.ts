@@ -1,8 +1,9 @@
 import { ObjectId } from "mongoose";
 import OrderModel from "../schema/Order.model";
 import OrderItemModel from "../schema/OrderItem.model";
-import { Order, OrderInput, OrderInquiry } from "../libs/types/order";
+import { Order, OrderInput, OrderInquiry,  OrderUpdateInput, } from "../libs/types/order";
 import { shapeIntoMongooseObjectId } from "../libs/config";
+import Errors, { HttpCode, Message } from "../libs/Errors";
 
 
 class OrderService {
@@ -88,6 +89,30 @@ class OrderService {
       },
     ])
     .exec();
+
+  return result;
+}
+
+public async updateOrder(
+  memberId: string,
+  orderId: string,
+  input: OrderUpdateInput
+): Promise<Order> {
+  const memberObjectId = shapeIntoMongooseObjectId(memberId);
+  const orderObjectId = shapeIntoMongooseObjectId(orderId);
+
+  const result = await this.orderModel.findOneAndUpdate(
+    {
+      _id: orderObjectId,
+      memberId: memberObjectId,
+    },
+    input,
+    { new: true }
+  );
+
+  if (!result) {
+    throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+  }
 
   return result;
 }
