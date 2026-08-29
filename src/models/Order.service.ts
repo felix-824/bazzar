@@ -1,7 +1,9 @@
 import { ObjectId } from "mongoose";
 import OrderModel from "../schema/Order.model";
 import OrderItemModel from "../schema/OrderItem.model";
-import { Order, OrderInput } from "../libs/types/order";
+import { Order, OrderInput, OrderInquiry } from "../libs/types/order";
+import { shapeIntoMongooseObjectId } from "../libs/config";
+
 
 class OrderService {
   private readonly orderModel;
@@ -37,6 +39,60 @@ class OrderService {
 
     return order;
   }
+
+   public async getOrders(
+  memberId: string,
+  inquiry: OrderInquiry
+): Promise<Order[]> {
+  const memberObjectId = shapeIntoMongooseObjectId(memberId);
+
+  const match: any = {
+    memberId: memberObjectId,
+  };
+
+  if (inquiry.orderStatus) {
+    match.orderStatus = inquiry.orderStatus;
+  }
+
+  const result = await this.orderModel
+    .aggregate([
+      {
+        $match: match,
+      },
+      {
+        $sort: {
+          updatedAt: -1,
+        },
+      },
+      {
+        $skip: (inquiry.page - 1) * inquiry.limit,
+      },
+      {
+        $limit: inquiry.limit,
+      },
+      {
+        $lookup: {
+          from: "orderItems",
+          localField: "_id",
+          foreignField: "orderId",
+          as: "orderItems",
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "orderItems.productId",
+          foreignField: "_id",
+          as: "productData",
+        },
+      },
+    ])
+    .exec();
+
+  return result;
+}
+
+
 }
 
 export default OrderService;
