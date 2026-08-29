@@ -65,6 +65,55 @@ orderController.getOrders = async (
   }
 };
 
+orderController.getAllOrdersByAdmin = async (
+  req: ExtendedRequest,
+  res: Response
+) => {
+  try {
+    console.log("getAllOrdersByAdmin");
+
+
+    // 1. Admin yuborgan query ma'lumotlarini olamiz.
+    // Masalan:
+    // ?page=1&limit=10&orderStatus=PAUSE
+    const inquiry: OrderInquiry = {
+      page: Number(req.query.page) || 1,
+      limit: Number(req.query.limit) || 10,
+      orderStatus: req.query.orderStatus as any,
+    };
+
+
+    // 2.
+    const result = await orderService.getAllOrdersByAdmin(
+      inquiry
+    );
+
+
+    
+    res.status(HttpCode.OK).json(result);
+
+  } catch (err) {
+    console.log("Error, getAllOrdersByAdmin:", err);
+
+
+    // 4. Agar biz yaratgan Errors xatosi bo'lsa,
+    // uning status code va message'ini qaytaramiz.
+    if (err instanceof Errors) {
+      res.status(err.code).json({
+        message: err.message,
+      });
+
+    } else {
+
+      // 5. Boshqa kutilmagan xatolik bo'lsa 500 qaytaramiz.
+      res.status(HttpCode.INTERNAL_SERVER_ERROR).json({
+        message: Message.SOMETHING_WENT_WRONG,
+      });
+    }
+  }
+};
+
+
 orderController.updateOrderByAdmin = async (
   req: ExtendedRequest,
   res: Response

@@ -188,6 +188,93 @@ class OrderService {
     return result;
   }
 
+  public async getAllOrdersByAdmin(inquiry: OrderInquiry): Promise<Order[]> {
+    // 1. Orderlarni filterlash uchun bo'sh match object yaratamiz.
+    // Admin barcha userlarning orderlarini ko'ra oladi,
+    // shuning uchun bu yerda memberId yo'q.
+    const match: any = {};
+
+    // 2. Agar admin orderStatus yuborsa,
+    // faqat shu statusdagi orderlarni olamiz.
+    // Masalan: PAUSE, PROCESS yoki FINISH.
+    if (inquiry.orderStatus) {
+      match.orderStatus = inquiry.orderStatus;
+    }
+
+    // 3. Orderlarni MongoDB aggregation orqali olamiz.
+    const result = await this.orderModel
+      .aggregate([
+        // 4. Status bo'yicha filterlaymiz.
+        // Agar orderStatus yuborilmagan bo'lsa,
+        // match bo'sh bo'ladi va barcha orderlar olinadi.
+        {
+          $match: match,
+        },
+
+        // 5. Eng yangi yangilangan orderlarni
+        // birinchi qilib chiqaramiz.
+        {
+          $sort: {
+            updatedAt: -1,
+          },
+        },
+
+        // 6. Pagination:
+        // oldingi sahifadagi orderlarni tashlab o'tamiz.
+        {
+          $skip: (inquiry.page - 1) * inquiry.limit,
+        },
+
+        // 7. Bir sahifada nechta order chiqishini belgilaymiz.
+        {
+          $limit: inquiry.limit,
+        },
+
+        // 8. Har bir orderga tegishli OrderItemlarni qo'shamiz.
+        {
+          $lookup: {
+            from: 'orderItems',
+            localField: '_id',
+            foreignField: 'orderId',
+            as: 'orderItems',
+          },
+        },
+
+        // 9. OrderItemlardagi productId orqali
+        // Product ma'lumotlarini ham qo'shamiz.
+        {
+          $lookup: {
+            from: 'products',
+            localField: 'orderItems.productId',
+            foreignField: '_id',
+            as: 'productData',
+          },
+        },
+
+        // 10. Orderni qilgan userning ma'lumotlarini ham olamiz.
+        // orders.memberId bilan members._id bog'lanadi.
+        {
+          $lookup: {
+            from: 'members',
+            localField: 'memberId',
+            foreignField: '_id',
+            as: 'memberData',
+          },
+        },
+
+         // Member password hashini frontendga yubormaymiz.
+        {
+          $project: {
+            'memberData.memberPassword': 0,
+          },
+        },
+      ])
+      .exec();
+
+    // 11. Topilgan barcha orderlarni Controllerga qaytaramiz.
+    return result;
+  }
+
   public async updateOrderByAdmin(orderId: string, input: OrderUpdateInput): Promise<Order> {
     // 1. Router/Controllerdan kelgan orderId ni
     // MongoDB ObjectId formatiga o'tkazamiz.
@@ -253,7 +340,6 @@ class OrderService {
   }
 
   public async cancelOrder(memberId: string, orderId: string): Promise<Order> {
-   
     const memberObjectId = shapeIntoMongooseObjectId(memberId);
 
     // 2. Bekor qilinadigan orderId ni ham
