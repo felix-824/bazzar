@@ -28,7 +28,7 @@ router.post(
 
 
 router.get(
-    "/products/",
+    "/products",
     productController.getProducts
 );
 
