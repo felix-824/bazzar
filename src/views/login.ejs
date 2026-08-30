@@ -1,54 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     />
+
     <title>Bazzar Admin Login</title>
+
+    <!--
+        Admin panelda ishlatayotgan
+        umumiy CSS faylimiz.
+    -->
+    <link
+        rel="stylesheet"
+        href="/css/admin.css"
+    />
 </head>
 
 <body>
-    <h1>Bazzar Admin Login</h1>
 
-    <!--
-        Form submit bo'lganda:
-        POST /admin/login
-        route'iga memberNick va memberPassword yuboriladi.
-    -->
-    <form action="/admin/login" method="POST">
+    <!-- ========================================= -->
+    <!-- ADMIN LOGIN PAGE                          -->
+    <!-- ========================================= -->
 
-        <div>
-            <label for="memberNick">Nick:</label>
+    <div class="admin-login-page">
 
-            <input
-                type="text"
-                id="memberNick"
-                name="memberNick"
-                required
-            />
+        <!-- ===================================== -->
+        <!-- LOGIN CARD                           -->
+        <!-- ===================================== -->
+
+        <div class="admin-login-card">
+
+
+            <!-- ================================= -->
+            <!-- LOGO                             -->
+            <!-- ================================= -->
+
+            <div class="login-logo">
+
+                <div class="login-logo-icon">
+                    B
+                </div>
+
+                <div>
+                    <h1>Bazzar</h1>
+
+                    <span>
+                        Admin Panel
+                    </span>
+                </div>
+
+            </div>
+
+
+            <!-- ================================= -->
+            <!-- TITLE                            -->
+            <!-- ================================= -->
+
+            <div class="login-heading">
+
+                <h2>
+                    Welcome back
+                </h2>
+
+                <p>
+                    Sign in to manage your Bazzar store
+                </p>
+
+            </div>
+
+
+            <!-- ================================= -->
+            <!-- LOGIN FORM                       -->
+            <!-- ================================= -->
+
+            <!--
+                Submit bosilganda:
+
+                POST /admin/login
+
+                request yuboriladi.
+            -->
+
+            <form
+                action="/admin/login"
+                method="POST"
+                class="admin-login-form"
+            >
+
+
+                <!-- ============================= -->
+                <!-- MEMBER NICK                   -->
+                <!-- ============================= -->
+
+                <div class="login-form-group">
+
+                    <label for="memberNick">
+                        Admin Nick
+                    </label>
+
+                    <input
+                        type="text"
+                        id="memberNick"
+                        name="memberNick"
+                        placeholder="Enter your admin nick"
+                        autocomplete="username"
+                        required
+                    />
+
+                </div>
+
+
+                <!-- ============================= -->
+                <!-- PASSWORD                      -->
+                <!-- ============================= -->
+
+                <div class="login-form-group">
+
+                    <label for="memberPassword">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="memberPassword"
+                        name="memberPassword"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    />
+
+                </div>
+
+
+                <!-- ============================= -->
+                <!-- LOGIN BUTTON                  -->
+                <!-- ============================= -->
+
+                <button
+                    type="submit"
+                    class="admin-login-button"
+                >
+                    Sign In
+                </button>
+
+            </form>
+
+
+            <!-- ================================= -->
+            <!-- FOOTER TEXT                      -->
+            <!-- ================================= -->
+
+            <p class="login-footer">
+                Bazzar Grocery Admin
+            </p>
+
         </div>
 
-        <br />
+    </div>
 
-        <div>
-            <label for="memberPassword">Password:</label>
-
-            <input
-                type="password"
-                id="memberPassword"
-                name="memberPassword"
-                required
-            />
-        </div>
-
-        <br />
-
-        <button type="submit">
-            Login
-        </button>
-
-    </form>
 </body>
+
 </html>

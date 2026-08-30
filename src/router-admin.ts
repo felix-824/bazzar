@@ -35,19 +35,17 @@ routerAdmin.post(
 
 // Admin barcha userlarning orderlarini ko'radi.
 routerAdmin.get(
-  '/order/all',
-  memberController.verifyAuth,
-  memberController.verifyAdmin,
-  orderController.getAllOrdersByAdmin,
+    "/order/all",
+    adminController.verifyAdminSession,
+    adminController.getOrders
 );
 
 // Admin order statusini boshqaradi.
 // Masalan: PAUSE -> PROCESS -> FINISH
 routerAdmin.post(
-  '/order/update/:id',
-  memberController.verifyAuth,
-  memberController.verifyAdmin,
-  orderController.updateOrderByAdmin,
+    "/order/update/:id",
+    adminController.verifyAdminSession,
+    adminController.updateOrder
 );
 
 

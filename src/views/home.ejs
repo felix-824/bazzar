@@ -1,17 +1,343 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     />
-    <title>Bazzar Admin</title>
+
+    <title>Bazzar Admin | Dashboard</title>
+
+    <!--
+        Products va Orders sahifalarida
+        ishlatayotgan bir xil Admin CSS.
+    -->
+    <link rel="stylesheet" href="/css/admin.css" />
 </head>
 
 <body>
-    <h1>Bazzar Admin Panel</h1>
 
-    <p>Welcome to Bazzar Admin Page</p>
+    <!-- ========================================= -->
+    <!-- 1. ADMIN UMUMIY LAYOUT                    -->
+    <!-- ========================================= -->
+
+    <div class="admin-layout">
+
+        <!-- ===================================== -->
+        <!-- 2. SIDEBAR                           -->
+        <!-- ===================================== -->
+
+        <%- include("includes/sidebar") %>
+
+
+        <!-- ===================================== -->
+        <!-- 3. ASOSIY QISM                       -->
+        <!-- ===================================== -->
+
+        <main class="admin-main">
+
+            <!-- ================================= -->
+            <!-- 4. HEADER                        -->
+            <!-- ================================= -->
+
+            <%- include("includes/header", {
+                pageTitle: "Dashboard"
+            }) %>
+
+
+            <!-- ================================= -->
+            <!-- 5. DASHBOARD CONTENT             -->
+            <!-- ================================= -->
+
+            <section class="admin-content">
+
+                <!-- ============================= -->
+                <!-- DASHBOARD TITLE               -->
+                <!-- ============================= -->
+
+                <div class="content-heading">
+
+                    <div>
+
+                        <h2>
+                            Dashboard
+                        </h2>
+
+                        <p>
+                            Overview of your Bazzar store.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================= -->
+                <!-- 6. STATISTICS CARDS               -->
+                <!-- ================================= -->
+
+                <div class="dashboard-cards">
+
+
+                    <!-- ============================= -->
+                    <!-- TOTAL PRODUCTS                -->
+                    <!-- ============================= -->
+
+                    <div class="admin-card dashboard-card">
+
+                        <div class="dashboard-card-icon">
+                            P
+                        </div>
+
+                        <div class="dashboard-card-info">
+
+                            <span>
+                                Total Products
+                            </span>
+
+                            <h3>
+                                <%= totalProducts %>
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ============================= -->
+                    <!-- TOTAL ORDERS                  -->
+                    <!-- ============================= -->
+
+                    <div class="admin-card dashboard-card">
+
+                        <div class="dashboard-card-icon">
+                            O
+                        </div>
+
+                        <div class="dashboard-card-info">
+
+                            <span>
+                                Total Orders
+                            </span>
+
+                            <h3>
+                                <%= totalOrders %>
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ============================= -->
+                    <!-- PENDING ORDERS                -->
+                    <!-- ============================= -->
+
+                    <div class="admin-card dashboard-card">
+
+                        <div class="dashboard-card-icon">
+                            !
+                        </div>
+
+                        <div class="dashboard-card-info">
+
+                            <span>
+                                Pending Orders
+                            </span>
+
+                            <h3>
+                                <%= pendingOrders %>
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================= -->
+                <!-- 7. RECENT ORDERS                  -->
+                <!-- ================================= -->
+
+                <div class="admin-card product-table-card">
+
+                    <div class="table-heading">
+
+                        <div>
+
+                            <h3>
+                                Recent Orders
+                            </h3>
+
+                            <p>
+                                Latest customer orders
+                            </p>
+
+                        </div>
+
+
+                        <!--
+                            Barcha orderlarni ko'rish uchun
+                            Orders sahifasiga o'tadi.
+                        -->
+
+                        <a
+                            href="/admin/order/all"
+                            class="add-product-btn"
+                        >
+                            View All Orders
+                        </a>
+
+                    </div>
+
+
+                    <div class="table-wrapper">
+
+                        <table class="product-table">
+
+                            <thead>
+
+                                <tr>
+                                    <th>No</th>
+                                    <th>Customer</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                <!--
+                                    Controllerdan:
+
+                                    recentOrders =
+                                        orders.slice(0, 5)
+
+                                    kelmoqda.
+                                -->
+
+                                <% if (
+                                    recentOrders &&
+                                    recentOrders.length > 0
+                                ) { %>
+
+
+                                    <% recentOrders.forEach(
+                                        function(order, index) {
+                                    %>
+
+                                        <tr>
+
+                                            <!-- NUMBER -->
+
+                                            <td>
+                                                <%= index + 1 %>
+                                            </td>
+
+
+                                            <!-- CUSTOMER -->
+
+                                            <td>
+
+                                                <% if (
+                                                    order.memberData &&
+                                                    order.memberData.length > 0
+                                                ) { %>
+
+                                                    <strong>
+                                                        <%= order.memberData[0].memberNick %>
+                                                    </strong>
+
+                                                <% } else { %>
+
+                                                    <span>
+                                                        Unknown
+                                                    </span>
+
+                                                <% } %>
+
+                                            </td>
+
+
+                                            <!-- TOTAL -->
+
+                                            <td>
+
+                                                <strong>
+                                                    ₩<%= Number(
+                                                        order.orderTotal
+                                                    ).toLocaleString() %>
+                                                </strong>
+
+                                            </td>
+
+
+                                            <!-- STATUS -->
+
+                                            <td>
+
+                                                <span
+                                                    class="status-badge status-<%= order.orderStatus.toLowerCase() %>"
+                                                >
+                                                    <%= order.orderStatus %>
+                                                </span>
+
+                                            </td>
+
+
+                                            <!-- DATE -->
+
+                                            <td>
+
+                                                <%= new Date(
+                                                    order.createdAt
+                                                ).toLocaleDateString() %>
+
+                                            </td>
+
+                                        </tr>
+
+                                    <% }); %>
+
+
+                                <% } else { %>
+
+                                    <!-- ORDER BO'LMASA -->
+
+                                    <tr>
+
+                                        <td
+                                            colspan="5"
+                                            style="text-align: center;"
+                                        >
+                                            No orders found
+                                        </td>
+
+                                    </tr>
+
+                                <% } %>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
 </body>
+
 </html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    />
+
+    <title>Bazzar Admin | Orders</title>
+
+    <link rel="stylesheet" href="/css/admin.css" />
+</head>
+
+<body>
+
+    <!-- ========================================= -->
+    <!-- 1. ADMIN PAGE UMUMIY CONTAINER            -->
+    <!-- ========================================= -->
+
+    <div class="admin-layout">
+
+        <!-- ===================================== -->
+        <!-- 2. SIDEBAR                           -->
+        <!-- ===================================== -->
+
+        <%- include("includes/sidebar") %>
+
+
+        <!-- ===================================== -->
+        <!-- 3. ASOSIY QISM                       -->
+        <!-- ===================================== -->
+
+        <main class="admin-main">
+
+            <!-- ================================= -->
+            <!-- 4. HEADER                        -->
+            <!-- ================================= -->
+
+            <%- include("includes/header", {
+                pageTitle: "Orders"
+            }) %>
+
+
+            <!-- ================================= -->
+            <!-- 5. ORDERS CONTENT                -->
+            <!-- ================================= -->
+
+            <section class="admin-content">
+
+                <div class="content-heading">
+
+                    <div>
+                        <h2>Orders</h2>
+
+                        <p>
+                            Manage customer orders in your Bazzar store.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <!-- ================================= -->
+                <!-- 6. ORDERS TABLE                   -->
+                <!-- ================================= -->
+
+                <div class="admin-card product-table-card">
+
+                    <div class="table-heading">
+
+                        <div>
+                            <h3>Order List</h3>
+
+                            <p>
+                                All customer orders
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-wrapper">
+
+                        <table class="product-table">
+
+                            <thead>
+
+                                <tr>
+                                    <th>No</th>
+                                    <th>Customer</th>
+                                    <th>Products</th>
+                                    <th>Total</th>
+                                    <th>Delivery</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                <% if (orders && orders.length > 0) { %>
+
+                                    <% orders.forEach(function(order, index) { %>
+
+                                        <tr>
+
+                                            <!-- ===================== -->
+                                            <!-- NUMBER                -->
+                                            <!-- ===================== -->
+
+                                            <td>
+                                                <%= index + 1 %>
+                                            </td>
+
+
+                                            <!-- ===================== -->
+                                            <!-- CUSTOMER              -->
+                                            <!-- ===================== -->
+
+                                            <td>
+
+                                                <% if (
+                                                    order.memberData &&
+                                                    order.memberData.length > 0
+                                                ) { %>
+
+                                                    <strong>
+                                                        <%= order.memberData[0].memberNick %>
+                                                    </strong>
+
+                                                <% } else { %>
+
+                                                    <span>
+                                                        Unknown
+                                                    </span>
+
+                                                <% } %>
+
+                                            </td>
+
+
+                                            <!-- ===================== -->
+                                            <!-- PRODUCTS              -->
+                                            <!-- ===================== -->
+
+                                            <td>
+
+                                                <%
+                                                    /*
+                                                     * orderItems ichida:
+                                                     *
+                                                     * productId
+                                                     * itemQuantity
+                                                     * itemPrice
+                                                     *
+                                                     * bor.
+                                                     *
+                                                     * productData ichida esa
+                                                     * product ma'lumotlari bor.
+                                                     */
+                                                %>
+
+                                                <% if (
+                                                    order.orderItems &&
+                                                    order.orderItems.length > 0
+                                                ) { %>
+
+                                                    <% order.orderItems.forEach(function(item) { %>
+
+                                                        <%
+                                                            /*
+                                                             * Shu OrderItemga tegishli
+                                                             * productni productData
+                                                             * ichidan topamiz.
+                                                             */
+                                                            const product =
+                                                                order.productData.find(
+                                                                    function(product) {
+                                                                        return (
+                                                                            product._id.toString() ===
+                                                                            item.productId.toString()
+                                                                        );
+                                                                    }
+                                                                );
+                                                        %>
+
+                                                        <div class="order-product-item">
+
+                                                            <span>
+                                                                <%= product
+                                                                    ? product.productName
+                                                                    : "Unknown Product"
+                                                                %>
+                                                            </span>
+
+                                                            <strong>
+                                                                × <%= item.itemQuantity %>
+                                                            </strong>
+
+                                                        </div>
+
+                                                    <% }); %>
+
+                                                <% } else { %>
+
+                                                    <span>
+                                                        No products
+                                                    </span>
+
+                                                <% } %>
+
+                                            </td>
+
+
+                                            <!-- ===================== -->
+                                            <!-- TOTAL                 -->
+                                            <!-- ===================== -->
+
+                                            <td>
+
+                                                <strong>
+                                                    ₩<%= Number(
+                                                        order.orderTotal
+                                                    ).toLocaleString() %>
+                                                </strong>
+
+                                            </td>
+
+
+                                            <!-- ===================== -->
+                                            <!-- DELIVERY              -->
+                                            <!-- ===================== -->
+
+                                            <td>
+
+                                                ₩<%= Number(
+                                                    order.orderDelivery
+                                                ).toLocaleString() %>
+
+                                            </td>
+
+
+                                            <!-- ===================== -->
+                                            <!-- STATUS                -->
+                                            <!-- ===================== -->
+
+                                            <td>
+
+                                                <span
+                                                    class="status-badge status-<%= order.orderStatus.toLowerCase() %>"
+                                                >
+                                                    <%= order.orderStatus %>
+                                                </span>
+
+                                            </td>
+
+
+                                            <!-- ===================== -->
+                                            <!-- DATE                  -->
+                                            <!-- ===================== -->
+
+                                            <td>
+
+                                                <%= new Date(
+                                                    order.createdAt
+                                                ).toLocaleDateString() %>
+
+                                            </td>
+
+
+                                            <!-- ===================== -->
+                                            <!-- ACTION                -->
+                                            <!-- ===================== -->
+
+                                            <td>
+
+                                                <!--
+                                                    Hozircha statusga qarab
+                                                    button chiqaramiz.
+
+                                                    Keyingi qadamda bu buttonlarni
+                                                    backend update routega ulaymiz.
+                                                -->
+
+
+                                                <!-- PAUSE -> PROCESS -->
+
+                                                <% if (
+                                                    order.orderStatus === "PAUSE"
+                                                ) { %>
+
+                                                   <form
+                                                        action="/admin/order/update/<%= order._id %>"
+                                                        method="POST"
+                                                    >
+                                                        <input
+                                                            type="hidden"
+                                                            name="orderStatus"
+                                                            value="PROCESS"
+                                                        />
+
+                                                        <button
+                                                            type="submit"
+                                                            class="edit-btn"
+                                                        >
+                                                            Process
+                                                        </button>
+                                                    </form>
+
+                                                <% } %>
+
+
+                                                <!-- PROCESS -> FINISH -->
+
+                                                <% if (
+                                                    order.orderStatus === "PROCESS"
+                                                ) { %>
+
+                                                   <form
+                                                        action="/admin/order/update/<%= order._id %>"
+                                                        method="POST"
+                                                    >
+                                                        <input
+                                                            type="hidden"
+                                                            name="orderStatus"
+                                                            value="FINISH"
+                                                        />
+
+                                                        <button
+                                                            type="submit"
+                                                            class="edit-btn"
+                                                        >
+                                                            Finish
+                                                        </button>
+                                                    </form>
+
+                                                <% } %>
+
+
+                                                <!-- FINISH -->
+
+                                                <% if (
+                                                    order.orderStatus === "FINISH"
+                                                ) { %>
+
+                                                    <span>
+                                                        Completed
+                                                    </span>
+
+                                                <% } %>
+
+
+                                                <!-- DELETE -->
+
+                                                <% if (
+                                                    order.orderStatus === "DELETE"
+                                                ) { %>
+
+                                                    <span>
+                                                        Cancelled
+                                                    </span>
+
+                                                <% } %>
+
+                                            </td>
+
+                                        </tr>
+
+                                    <% }); %>
+
+
+                                <% } else { %>
+
+                                    <!-- ================================= -->
+                                    <!-- ORDER YO'Q BO'LSA                  -->
+                                    <!-- ================================= -->
+
+                                    <tr>
+
+                                        <td
+                                            colspan="8"
+                                            style="text-align: center;"
+                                        >
+                                            No orders found
+                                        </td>
+
+                                    </tr>
+
+                                <% } %>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

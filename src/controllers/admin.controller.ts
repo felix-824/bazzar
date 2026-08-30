@@ -7,23 +7,94 @@ import Errors, { HttpCode, Message } from "../libs/Errors";
 import ProductService from "../models/Product.service";
 import { ProductInput, ProductUpdateInput } from "../libs/types/product";
 import { ProductStatus } from "../libs/enums/product.enum";
+import OrderService from "../models/Order.service";
 
 const memberService = new MemberService();
-const adminController: T = {};
-
+const orderService = new OrderService();
 const productService = new ProductService();
 
+const adminController: T = {};
 
- //1. Admin Home sahifasini ochadi.
-adminController.goHome = (req: Request, res: Response) => {
-    res.render("home");
+
+adminController.goHome = async (
+    req: Request,
+    res: Response
+) => {
+    try {
+
+    
+        //  BARCHA PRODUCTLARNI OLAMIZ
+        const products =
+            await productService.getAllProductsByAdmin();
+
+
+        // BARCHA ORDERLARNI OLAMIZ
+        const orders =
+            await orderService.getAllOrdersByAdmin({
+                page: 1,
+                limit: 100,
+            });
+
+
+        //  PRODUCT SONI
+        // DELETE productlarni active product sifatida hisoblamaymiz.
+        const totalProducts =
+            products.filter(
+                (product) =>
+                    product.productStatus !== "DELETE"
+            ).length;
+
+
+       
+    // DELETE = user cancel qilgan order haqiqiy orderlarsoniga qo'shmaymiz.
+        const totalOrders =
+            orders.filter(
+                (order) =>
+                    order.orderStatus !== "DELETE"
+            ).length;
+
+        // PAUSE order hali Admin tomonidan process qilinmagan.
+        const pendingOrders =
+            orders.filter(
+                (order) =>
+                    order.orderStatus === "PAUSE"
+            ).length;
+      
+        //boshidagi 5 ta eng yangi orderni olamiz.
+        const recentOrders =
+            orders.slice(0, 5);
+
+        // 7. HOME.EJS GA YUBORAMIZ
+        res.render("home", {
+
+            totalProducts,
+
+            totalOrders,
+
+            pendingOrders,
+
+            recentOrders,
+
+        });
+
+    } catch (err) {
+
+        console.log(
+            "Error, Admin Dashboard:",
+            err
+        );
+
+        res.redirect("/admin/login");
+    }
 };
 
- // 2. Admin Login sahifasini ochadi.
-adminController.getLogin = (req: Request, res: Response) => {
+
+adminController.getLogin = (
+    req: Request,
+    res: Response
+) => {
     res.render("login");
 };
- //3. Login formdan kelgan nick/passwordni tekshiradi.
  
 
 adminController.processLogin = async (
@@ -70,13 +141,7 @@ adminController.logout = (
     });
 };
 
-/**
- * 5. Admin EJS sahifalarini himoya qiladi.
- *
- * Bu JWT verifyAdmin'dan alohida:
- * - REST API → accessToken
- * - EJS Admin → session
- */
+
 adminController.verifyAdminSession = (
     req: Request,
     res: Response,
@@ -95,10 +160,7 @@ adminController.verifyAdminSession = (
     return res.redirect("/admin/login");
 };
 
-/**
- * Admin uchun barcha productlarni olib,
- * products.ejs sahifasiga yuboradi.
- */
+
 adminController.getProducts = async (
     req: Request,
     res: Response
@@ -117,9 +179,9 @@ adminController.getProducts = async (
     }
 };
 
-/**
- * Admin EJS panel orqali yangi product yaratadi.
- */
+
+ // Admin EJS panel orqali yangi product yaratadi.
+ 
 adminController.createProduct = async (
     req: Request,
     res: Response
@@ -237,5 +299,77 @@ adminController.deleteProduct = async (
         res.redirect("/admin/product/all");
     }
 };
+
+
+
+
+ // Admin Orders sahifasiga kiradi
+adminController.getOrders = async (
+    req: Request,
+    res: Response
+) => {
+    try {
+
+        const inquiry = {
+            page: 1,
+            limit: 100,
+        };
+        // Bu method:barcha orderlarni orderItems productData  memberData olib keladi
+        const orders =
+            await orderService.getAllOrdersByAdmin(
+                inquiry
+            );
+        // 3. Olingan orderlarni orders.ejs fayliga yuboramiz.
+        
+        res.render("orders", {
+            orders,
+        });
+
+    } catch (err) {
+
+        console.log(
+            "Error, Admin EJS getOrders:",
+            err
+        );
+
+        res.redirect("/admin");
+    }
+};
+
+adminController.updateOrder = async (
+    req: Request,
+    res: Response
+) => {
+    try {
+        // URLdan qaysi order ekanini olamiz.
+        const orderId = req.params.id as string;
+
+        // Formdan yangi status keladi:
+        // { orderStatus: "PROCESS" }
+        // yoki
+        // { orderStatus: "FINISH" }
+        const input = {
+            orderStatus: req.body.orderStatus,
+        };
+
+        // Mavjud Service logikasidan foydalanamiz.
+        await orderService.updateOrderByAdmin(
+            orderId,
+            input
+        );
+
+        // Update tugagach Orders sahifasiga qaytamiz.
+        res.redirect("/admin/order/all");
+
+    } catch (err) {
+        console.log(
+            "Error, Admin EJS updateOrder:",
+            err
+        );
+
+        res.redirect("/admin/order/all");
+    }
+};
+
 
 export default adminController;
