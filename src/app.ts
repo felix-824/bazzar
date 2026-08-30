@@ -16,6 +16,13 @@ const store = new MongoDBStore({
 /** 1-ENTRANCE **/
 const app = express();
 
+// EJS VIEW ENGINE
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
+// ADMIN STATIC FILES: CSS, JS, images
+app.use(express.static(path.join(__dirname, "public")));
+
 app.use(express.json()); // REST api ga xizmat Midlweri
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

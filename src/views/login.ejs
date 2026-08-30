@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    />
+    <title>Bazzar Admin Login</title>
+</head>
+
+<body>
+    <h1>Bazzar Admin Login</h1>
+
+    <!--
+        Form submit bo'lganda:
+        POST /admin/login
+        route'iga memberNick va memberPassword yuboriladi.
+    -->
+    <form action="/admin/login" method="POST">
+
+        <div>
+            <label for="memberNick">Nick:</label>
+
+            <input
+                type="text"
+                id="memberNick"
+                name="memberNick"
+                required
+            />
+        </div>
+
+        <br />
+
+        <div>
+            <label for="memberPassword">Password:</label>
+
+            <input
+                type="password"
+                id="memberPassword"
+                name="memberPassword"
+                required
+            />
+        </div>
+
+        <br />
+
+        <button type="submit">
+            Login
+        </button>
+
+    </form>
+</body>
+</html>

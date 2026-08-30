@@ -4,34 +4,33 @@ import uploader from './libs/utils/uploader';
 import productController from './controllers/product.controller';
 import memberController from './controllers/member.controller';
 import orderController from './controllers/order.controller';
+import adminController from "./controllers/admin.controller";
 
 const routerAdmin = express.Router();
 
-// Admin yangi product yaratadi.
+
+/// Admin EJS panel orqali yangi product yaratadi.
 routerAdmin.post(
   '/product/create',
-  memberController.verifyAuth,
-  memberController.verifyAdmin,
+  adminController.verifyAdminSession,
   uploader('products').array('productImages'),
-  productController.createProduct,
+  adminController.createProduct,
 );
 
-// Admin mavjud product ma'lumotlarini yangilaydi.
+// Admin EJS panel orqali productni yangilaydi.
 routerAdmin.post(
   '/product/update/:id',
-  memberController.verifyAuth,
-  memberController.verifyAdmin,
+  adminController.verifyAdminSession,
   uploader('products').array('productImages'),
-  productController.updateProduct,
+  adminController.updateProduct,
 );
 
 // Admin productni soft delete qiladi.
 // Ya'ni DBdan o'chirmaydi, statusini DELETE ga o'zgartiradi.
 routerAdmin.post(
-  '/product/delete/:id',
-  memberController.verifyAuth,
-  memberController.verifyAdmin,
-  productController.deleteProduct,
+    "/product/delete/:id",
+    adminController.verifyAdminSession,
+    adminController.deleteProduct
 );
 
 // Admin barcha userlarning orderlarini ko'radi.
@@ -49,6 +48,35 @@ routerAdmin.post(
   memberController.verifyAuth,
   memberController.verifyAdmin,
   orderController.updateOrderByAdmin,
+);
+
+
+routerAdmin.get(
+    "/",
+    adminController.verifyAdminSession,
+    adminController.goHome
+);
+
+routerAdmin.get(
+    "/login",
+    adminController.getLogin
+);
+
+routerAdmin.post(
+    "/login",
+    adminController.processLogin
+);
+
+routerAdmin.get(
+    "/logout",
+    adminController.logout
+);
+
+// Admin barcha productlarni EJS sahifada ko'radi.
+routerAdmin.get(
+  "/product/all",
+  adminController.verifyAdminSession,
+  adminController.getProducts
 );
 
 export default routerAdmin;

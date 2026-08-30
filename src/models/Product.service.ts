@@ -74,6 +74,20 @@ class ProductService {
     }
     return result;
   }
+
+  /**
+ * Admin barcha productlarni ko'radi.
+ * USER getProducts()dan farqli ravishda
+ * bu yerda productStatus: PROCESS sharti yo'q.
+ */
+public async getAllProductsByAdmin(): Promise<Product[]> {
+  const result = await this.productModel
+    .find()
+    .sort({ createdAt: -1 })
+    .exec();
+
+  return result;
+}
 }
 
 export default ProductService;

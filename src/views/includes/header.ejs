@@ -1,0 +1,31 @@
+<header class="admin-header">
+
+    <div>
+        <h1><%= pageTitle %></h1>
+        <p class="header-description">
+            Manage your Bazzar store
+        </p>
+    </div>
+
+    <div class="admin-profile">
+
+        <div class="admin-avatar">
+            <%= member?.memberNick
+                ? member.memberNick.charAt(0).toUpperCase()
+                : "A"
+            %>
+        </div>
+
+        <div class="admin-profile-info">
+
+            <strong>
+                <%= member?.memberNick || "Admin" %>
+            </strong>
+
+            <span>Administrator</span>
+
+        </div>
+
+    </div>
+
+</header>
