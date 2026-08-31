@@ -5,7 +5,11 @@ import productController from "./controllers/product.controller";
 import orderController from "./controllers/order.controller";
 const router = express.Router();
 
-router.post("/member/signup", memberController.signup);
+router.post(
+  "/member/signup",
+  uploader("members").single("memberImage"),
+  memberController.signup
+);
 
 router.post("/member/login", memberController.login);
 
