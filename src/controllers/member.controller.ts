@@ -56,7 +56,6 @@ memberController.login = async (req: Request, res: Response) => {
     });
     res.status(HttpCode.OK).json({ member: result });
   } catch (err) {
-    console.log('Error, login:', err);
 
     if (err instanceof Errors) {
       res.status(err.code).json(err);
