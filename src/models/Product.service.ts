@@ -45,6 +45,59 @@ class ProductService {
         sortOption = { productPrice: -1};
     }
 
+    const shouldMixDefaultProducts =
+      !input.productCollection && !input.search && !input.sort;
+
+    if (shouldMixDefaultProducts) {
+      const allProducts = await this.productModel
+        .find(match)
+        .sort(sortOption)
+        .exec();
+
+      const groupedProducts = new Map<ProductCollection, Product[]>();
+
+      allProducts.forEach((product) => {
+        const collection = product.productCollection;
+        const currentProducts = groupedProducts.get(collection) || [];
+
+        currentProducts.push(product);
+        groupedProducts.set(collection, currentProducts);
+      });
+
+      const collectionOrder = [
+        ProductCollection.FRUIT_VEGETABLE,
+        ProductCollection.MEAT,
+        ProductCollection.DAIRY,
+        ProductCollection.BAKERY,
+        ProductCollection.BEVERAGE,
+        ProductCollection.SNACK,
+        ProductCollection.OTHER,
+      ];
+      const mixedProducts: Product[] = [];
+
+      for (let index = 0; mixedProducts.length < allProducts.length; index++) {
+        let productAdded = false;
+
+        collectionOrder.forEach((collection) => {
+          const product = groupedProducts.get(collection)?.[index];
+
+          if (product) {
+            mixedProducts.push(product);
+            productAdded = true;
+          }
+        });
+
+        if (!productAdded) {
+          break;
+        }
+      }
+
+      const result = mixedProducts.slice(skip, skip + limit);
+
+      if (!result.length) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+      return result;
+    }
+
     const result = await this.productModel
     .find(match)   //shartlarga mos productlarni top
     .sort(sortOption)    
